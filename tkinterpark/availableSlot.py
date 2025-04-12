@@ -118,82 +118,174 @@ class AvailableSlots(tk.Frame):
                           command=lambda s=slot["ParkingSlotID"]: self.park_vehicle(s)).pack(padx=5)
 
     def park_vehicle(self, slot_id):
-        """Popup window for parking transaction (Styled)"""
+        """Popup window for parking transaction - Yellow Themed Modern UI"""
         popup = tk.Toplevel(self)
-        popup.title(f"Park in Slot {slot_id}")
-        popup.geometry("400x520")
-        popup.configure(bg="#f5b918")  # Yellow background
+        popup.title("Park Vehicle")
+        popup.geometry("400x500")
+        popup.configure(bg="#F4B738")  # Light yellow background
+        popup.resizable(False, False)
 
-        # Container
-        container = tk.Frame(popup, bg="white", bd=0, relief="flat")
-        container.place(relx=0.5, rely=0.5, anchor="center", width=360, height=480)
+        main_frame = tk.Frame(popup, bg="#F4B738")
+        main_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
-        tk.Label(container, text=f"PARKING SLOT {slot_id}", font=("Helvetica", 16, "bold"), bg="white",
-                 fg="black").pack(pady=(20, 10))
+        header = tk.Label(main_frame, text=f"Park in Slot {slot_id}", font=("Arial", 16, "bold"), bg="#fff8d6",
+                          fg="#333")
+        header.pack(pady=(0, 10))
 
-        # Fetch vehicles not currently parked
         vehicles = self.db.fetch_all(""" 
             SELECT VehicleID, Make, Model, LicensePlate 
             FROM Vehicles 
             WHERE UserID = %s 
             AND VehicleID NOT IN (SELECT VehicleID FROM ParkingTransactions WHERE ExitTime IS NULL)
-            """, (self.user["UserID"],))
+        """, (self.user["UserID"],))
 
         if not vehicles:
-            tk.Label(container, text="No available vehicles to park!", fg="red", bg="white").pack(pady=10)
+            tk.Label(main_frame, text="No available vehicles to park!", fg="red", bg="#fff8d6",
+                     font=("Arial", 12)).pack()
             return
 
         # Vehicle selection
-        tk.Label(popup, text="Select Vehicle:", bg="white").pack()
+        tk.Label(main_frame, text="Select Vehicle:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w")
         self.selected_vehicle = tk.StringVar()
         vehicle_options = {f"{v['Make']} {v['Model']} ({v['LicensePlate']})": v["VehicleID"] for v in vehicles}
-        vehicle_dropdown = ttk.Combobox(container, textvariable=self.selected_vehicle, values=list(vehicle_options.keys()), state="readonly")
-        vehicle_dropdown.pack(pady=5)
+        vehicle_dropdown = ttk.Combobox(main_frame, textvariable=self.selected_vehicle,
+                                        values=list(vehicle_options.keys()), state="readonly")
+        vehicle_dropdown.pack(fill="x", pady=5)
 
-        # Entry Date & Time
-        tk.Label(container, text="Entry Date & Time:", bg="white").pack()
-        self.entry_date = DateEntry(container, date_pattern="yyyy-mm-dd")
-        self.entry_date.pack(pady=2)
-        self.entry_time = ttk.Combobox(container, values=[f"{h:02d}:00" for h in range(24)], state="readonly")
-        self.entry_time.pack(pady=2)
+        # Entry time
+        tk.Label(main_frame, text="Entry Date & Time:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w", pady=(10, 0))
+        entry_frame = tk.Frame(main_frame, bg="#F4B738")
+        entry_frame.pack(fill="x")
+        self.entry_date = DateEntry(entry_frame, date_pattern="yyyy-mm-dd")
+        self.entry_date.pack(side="left", expand=True, fill="x", padx=(0, 5))
+        self.entry_time = ttk.Combobox(entry_frame, values=[f"{h:02d}:00" for h in range(24)], state="readonly")
+        self.entry_time.pack(side="right", expand=True, fill="x", padx=(5, 0))
 
-        # Exit Date & Time
-        tk.Label(container, text="Exit Date & Time:", bg="white").pack()
-        self.exit_date = DateEntry(container, date_pattern="yyyy-mm-dd")
-        self.exit_date.pack(pady=2)
-        self.exit_time = ttk.Combobox(container, values=[f"{h:02d}:00" for h in range(24)], state="readonly")
-        self.exit_time.pack(pady=2)
+        # Exit time
+        tk.Label(main_frame, text="Exit Date & Time:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w", pady=(10, 0))
+        exit_frame = tk.Frame(main_frame, bg="#fff8d6")
+        exit_frame.pack(fill="x")
+        self.exit_date = DateEntry(exit_frame, date_pattern="yyyy-mm-dd")
+        self.exit_date.pack(side="left", expand=True, fill="x", padx=(0, 5))
+        self.exit_time = ttk.Combobox(exit_frame, values=[f"{h:02d}:00" for h in range(24)], state="readonly")
+        self.exit_time.pack(side="right", expand=True, fill="x", padx=(5, 0))
 
-        # Discount Selection
-        tk.Label(container, text="Select Discount:", bg="white").pack()
+        # Discount
+        tk.Label(main_frame, text="Select Discount:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w", pady=(10, 0))
         self.discount_var = tk.StringVar(value="None")
         discount_options = ["None", "Student", "Faculty", "PWD", "Visitor"]
-        discount_dropdown = ttk.Combobox(container, textvariable=self.discount_var, values=discount_options,
+        discount_dropdown = ttk.Combobox(main_frame, textvariable=self.discount_var, values=discount_options,
                                          state="readonly")
-        discount_dropdown.pack(pady=2)
+        discount_dropdown.pack(fill="x", pady=5)
         discount_dropdown.bind("<<ComboboxSelected>>", lambda e: self.calculate_payment())
 
-        # Payment Display
-        self.payment_label = tk.Label(container, text="Payment: ₱0", font=("Helvetica", 13, "bold"), bg="white",
-                                      fg="black")
-        self.payment_label.pack(pady=8)
+        # Payment label
+        self.payment_label = tk.Label(main_frame, text="Payment: ₱0", font=("Arial", 12, "bold"), bg="#F4B738",
+                                      fg="#444")
+        self.payment_label.pack(pady=10)
 
-        # Payment Method
-        tk.Label(container, text="Payment Method:", bg="white").pack()
+        # Payment method
+        tk.Label(main_frame, text="Payment Method:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w")
         self.payment_method = tk.StringVar(value="Cash")
         payment_methods = ["Cash", "Online Payment", "Credit Card"]
-        payment_dropdown = ttk.Combobox(container, textvariable=self.payment_method, values=payment_methods,
+        payment_dropdown = ttk.Combobox(main_frame, textvariable=self.payment_method, values=payment_methods,
                                         state="readonly")
-        payment_dropdown.pack(pady=2)
+        payment_dropdown.pack(fill="x", pady=5)
 
-        # Bindings for auto calculation
+        # Bindings for calculation
         self.entry_date.bind("<<DateEntrySelected>>", lambda e: self.calculate_payment())
         self.entry_time.bind("<<ComboboxSelected>>", lambda e: self.calculate_payment())
         self.exit_date.bind("<<DateEntrySelected>>", lambda e: self.calculate_payment())
         self.exit_time.bind("<<ComboboxSelected>>", lambda e: self.calculate_payment())
 
         # Confirm button
-        confirm_btn = tk.Button(container, text="Confirm Parking", font=("Helvetica", 10, "bold"),
-                                bg="#f5b918", activebackground="#e0a800", relief="raised",
-                                command=lambda: self.confirm_parking(slot_id, vehicle_options, popup))
-        confirm_btn.pack(pady=15)
+        confirm_btn = tk.Button(main_frame, text="Confirm Parking", font=("Arial", 11, "bold"), bg="#F4B738",
+                                fg="black", bd=0,
+                                relief="raised", command=lambda: self.confirm_parking(slot_id, vehicle_options, popup))
+        confirm_btn.pack(pady=15, ipadx=10, ipady=5)
+
+    def calculate_payment(self):
+        try:
+            entry_datetime = datetime.strptime(f"{self.entry_date.get()} {self.entry_time.get()}", "%Y-%m-%d %H:%M")
+            exit_datetime = datetime.strptime(f"{self.exit_date.get()} {self.exit_time.get()}", "%Y-%m-%d %H:%M")
+
+            if exit_datetime <= entry_datetime:
+                self.payment_label.config(text="Payment: ₱0")
+                return
+
+            total_hours = max(1, int((exit_datetime - entry_datetime).total_seconds() / 3600))
+            base_amount = total_hours * 20
+            discount_rates = {"Student": 0.20, "Faculty": 0.15, "PWD": 0.30, "Visitor": 0.10, "None": 0.00}
+            discount = discount_rates.get(self.discount_var.get(), 0) * base_amount
+            total_amount = base_amount - discount
+
+            self.payment_label.config(text=f"Payment: ₱{total_amount:.2f}")
+        except ValueError:
+            self.payment_label.config(text="Payment: ₱0")
+
+    def confirm_parking(self, slot_id, vehicles, popup):
+        if not self.selected_vehicle.get():
+            messagebox.showerror("Error", "Please select a vehicle.")
+            return
+
+        try:
+            vehicle_id = vehicles[self.selected_vehicle.get()]
+            entry_datetime = datetime.strptime(f"{self.entry_date.get()} {self.entry_time.get()}", "%Y-%m-%d %H:%M")
+            exit_datetime = datetime.strptime(f"{self.exit_date.get()} {self.exit_time.get()}", "%Y-%m-%d %H:%M")
+
+            if exit_datetime <= entry_datetime:
+                messagebox.showerror("Error", "Exit time must be later than entry time.")
+                return
+
+            # Calculate payment
+            total_hours = max(1, int((exit_datetime - entry_datetime).total_seconds() / 3600))
+            base_amount = total_hours * 20
+            discount_rates = {"Student": 0.20, "Faculty": 0.15, "PWD": 0.30, "Visitor": 0.10, "None": 0.00}
+            discount = discount_rates.get(self.discount_var.get(), 0) * base_amount
+            total_amount = base_amount - discount
+            discount_rate = discount_rates.get(self.discount_var.get(), 0)
+
+            payment_method = self.payment_method.get()
+
+            # Insert into ParkingTransactions
+            query = """
+            INSERT INTO ParkingTransactions (UserID, VehicleID, ParkingSlotID, EntryTime, ExitTime, PaymentAmount, PaymentMethod, DiscountRate)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            self.db.execute(query, (
+                self.user["UserID"], vehicle_id, slot_id, entry_datetime, None, total_amount, payment_method,
+                discount_rate
+            ))
+
+            # Update the slot to occupied
+            self.db.execute("UPDATE ParkingSlots SET IsOccupied = TRUE WHERE ParkingSlotID = %s", (slot_id,))
+
+            messagebox.showinfo("Success", "Vehicle parked successfully!")
+            popup.destroy()
+            self.display_slots()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+
+    def park_out(self, slot_id):
+        """Park out the vehicle and free the parking slot"""
+        try:
+            # Update the parking transaction with ExitTime
+            exit_time = datetime.now()
+            self.db.execute("""
+                UPDATE ParkingTransactions 
+                SET ExitTime = %s 
+                WHERE ParkingSlotID = %s AND ExitTime IS NULL
+            """, (exit_time, slot_id))
+
+            # Update the slot to available
+            self.db.execute("""
+                UPDATE ParkingSlots 
+                SET IsOccupied = FALSE 
+                WHERE ParkingSlotID = %s
+            """, (slot_id,))
+
+            messagebox.showinfo("Success", "Vehicle has been parked out successfully!")
+            self.display_slots()  # Refresh the slot display automatically
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
