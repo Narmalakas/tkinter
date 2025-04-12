@@ -9,14 +9,14 @@
     body {
       min-height: 100vh;
       margin: 0;
-        font-family: 'Poppins', sans-serif;
+      font-family: 'Poppins', sans-serif;
     }
 
     .sidebar {
       width: 300px;
-    padding: 2rem 1rem;
-     flex-shrink: 0;
-    background-color: #f4b000;
+      padding: 2rem 1rem;
+      flex-shrink: 0;
+      background-color: #f4b000;
     }
 
     .sidebar a {
@@ -42,25 +42,30 @@
       flex-grow: 1;
       padding: 20px;
     }
+
     .bg-brown {
-  background-color: #8B4513
-}
+      background-color: #8B4513
+    }
+
     .navbar .nav-link {
-  color: #fff
-}
+      color: #fff
+    }
+
     .navbar .nav-link.active,
     .navbar .nav-link:hover {
-  font-weight: bold;
-  color: #FFD700
-}
+      font-weight: bold;
+      color: #FFD700
+    }
+
     .navbar-brand {
-  color: #fff
-}
+      color: #fff
+    }
+
     .logo {
-        top: 100px;
-        bottom: 70px;
-        width: 280px;
-        height: auto;
+      top: 100px;
+      bottom: 70px;
+      width: 280px;
+      height: auto;
     }
 
     @media (max-width: 768px) {
@@ -85,14 +90,16 @@
   {% if current_user.is_authenticated %}
     <!-- Sidebar Layout -->
     <div class="sidebar">
-        <img src="static/logo.png" class="logo">
+      <img src="static/logo.png" class="logo">
       <h4 class="text-white text-center mb-4"></h4>
       <a class="navbar-brand" href="/">Home</a>
       <a class="{% if request.endpoint == 'available_slots' %}active{% endif %}" href="{{ url_for('available_slots') }}">View Parking Slots</a>
       <a class="{% if request.endpoint == 'vehicles' %}active{% endif %}" href="/vehicles">My Vehicles</a>
       <a class="{% if request.endpoint == 'register_vehicle' %}active{% endif %}" href="/register_vehicle">Register Vehicle</a>
       <a class="{% if request.endpoint == 'history' %}active{% endif %}" href="/history">History</a>
-      <a href="/logout">Logout</a>
+
+      <!-- Logout triggers modal -->
+      <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a>
     </div>
   {% else %}
     <!-- Top Navbar Layout -->
@@ -120,6 +127,52 @@
   <div class="main-content">
     {% block content %}{% endblock %}
   </div>
+
+  <!-- Logout Confirmation Modal -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title fw-bold text-dark" id="logoutModalLabel">Confirm Logout</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center fs-5">
+          Are you sure you want to Logout?
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">No</button>
+          <button type="button" class="btn btn-warning text-dark fw-bold px-4" onclick="showThankYouModal()">YES</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thank You Modal -->
+  <div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg">
+        <div class="modal-header bg-success">
+          <h5 class="modal-title text-white fw-bold" id="thankYouModalLabel">Thank You!</h5>
+        </div>
+        <div class="modal-body text-center fs-5">
+          💖⭐Thank you for using Lavacomb.⭐💖   🚔🚘Have a nice park!🏍️🛵
+        </div>
+        <div class="modal-footer justify-content-center">
+          <a href="{{ url_for('logout') }}" class="btn btn-success text-white fw-bold px-4">OK</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showThankYouModal() {
+      var logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+      logoutModal.hide();
+
+      var thankYouModal = new bootstrap.Modal(document.getElementById('thankYouModal'));
+      thankYouModal.show();
+    }
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
