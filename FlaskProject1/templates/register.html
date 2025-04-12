@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    {% extends 'base.html' %}
+    {% block content %}
+        <meta charset="UTF-8">
+        <title>Register</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+           /* === Page Background === */
+    body {
+
+        background-image: url('static/backgroundfinal.jpeg'); /* <-- Change to your actual path */
+        background-size: 100% 100%;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* === Centered Form Container === */
+    .reg-container {
+        background: orange; /* Glassy white card */
+        padding: 2rem 2.5rem;
+        border-radius: 20px;
+        height: 100%;
+        margin-top: 5%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        opacity: 100%;
+        text-shadow: 3px 3px white;
+    }
+    .back {
+        background: rgba(255, 255, 255, 0.85); /* Glassy white card */
+        padding: 2rem 2.5rem;
+        border-radius: 20px;
+        height: auto;
+        margin-top: 5%;
+        opacity: 100%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        text-shadow: 3px 3px white;
+    }
+
+    /* === Form Header === */
+    h2 {
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* === LAVA COMB Branding === */
+    .lava-comb-text {
+        font-size: 2.4rem;
+        font-weight: 900;
+        color: #ff6f00;
+        text-align: center;
+        margin-bottom: 1rem;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 0 #fff3e0, 0 0 10px #ff6f00;
+    }
+
+    /* Optional flicker effect */
+    .fiery-effect {
+        animation: flicker 1.3s infinite alternate;
+    }
+
+    @keyframes flicker {
+        0%   { text-shadow: 0 0 6px #ffa726, 0 0 10px #fb8c00, 0 0 14px #ff6f00; }
+        100% { text-shadow: 0 0 8px #ff7043, 0 0 12px #ff5722, 0 0 18px #ff3d00; }
+    }
+
+    /* === Form Fields === */
+    .form-control {
+        border-radius: 12px;
+        padding: 10px 12px;
+        border: 1px solid #bbb;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #ff9800;
+        box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+    }
+
+    .form-control-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* === Button === */
+    .btn-primary {
+        background-color: #f57c00;
+        border-color: #f57c00;
+        font-weight: bold;
+        border-radius: 10px;
+        transition: 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #e65100;
+        border-color: #e65100;
+    }
+
+        </style>
+    </head>
+    <body>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-7 reg-container">
+                    <div class="back">
+                        <div class="lava-comb-text fiery-effect"></div>
+
+                        <h2 class="mb-4">Register</h2>
+                        <form method="POST">
+                            {{ form.hidden_tag() }}
+                            <div class="form-group">
+                                {{ form.user_type.label(class="form-control-label") }}
+                                {{ form.user_type(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.first_name.label(class="form-control-label") }}
+                                {{ form.first_name(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.last_name.label(class="form-control-label") }}
+                                {{ form.last_name(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.email.label(class="form-control-label") }}
+                                {{ form.email(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.phone_number.label(class="form-control-label") }}
+                                {{ form.phone_number(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.password.label(class="form-control-label") }}
+                                {{ form.password(class="form-control") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.submit(class="btn btn-primary btn-block") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+{% endblock %}
+</html>

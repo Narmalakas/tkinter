@@ -1,0 +1,84 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+
+.sidebar {
+     background-color: #f4b000;
+    color: white;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.sidebar logo {
+    width: 100%;
+    max-width: 120px;
+    margin-bottom: 2rem;
+}
+
+.sidebar .nav-link {
+    color: #fff8e1;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar a {
+    color: white;
+    display: block;
+    margin: 1rem 0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+.sidebar a:hover, .sidebar a.active {
+    color: #000;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+}
+    </style>
+</head>
+    {% extends "base.html" %}
+    {% block content %}
+    <div class="container">
+        <h2>Your Vehicles</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>License Plate</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Color</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td>{{ vehicle.VehicleType }}</td>
+                    <td>{{ vehicle.LicensePlate }}</td>
+                    <td>{{ vehicle.Make }}</td>
+                    <td>{{ vehicle.Model }}</td>
+                    <td>{{ vehicle.Color }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('register_vehicle') }}" class="btn btn-primary">Add New Vehicle</a>
+    </div>
+    {% endblock %}

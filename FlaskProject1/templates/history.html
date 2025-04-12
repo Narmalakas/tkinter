@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parking History</title>
+    <style>
+        /* === General === */
+body {
+    margin: 0;
+    font-family:'Poppins', sans-serif;;
+    background-color: #f4b940;
+    color: #333;
+}
+
+/* === Sidebar === */
+.sidebar {
+     background-color: #f4b000;
+    color: white;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.sidebar logo {
+    width: 100%;
+    max-width: 120px;
+    margin-bottom: 2rem;
+}
+
+.sidebar .nav-link {
+    color: #fff8e1;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar a {
+    color: white;
+    display: block;
+    margin: 1rem 0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+.sidebar a:hover, .sidebar a.active {
+    color: #000;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+}
+
+
+/* === Main Content === */
+.main-content {
+    padding: 2rem;
+    background-color: #fff8e1;
+    border-radius: 20px;
+    margin: 2rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* === Table === */
+.table {
+    margin-top: 1rem;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.table thead th {
+    font-weight: bold;
+    border: none;
+    background: none;
+}
+
+.table tbody tr {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table tbody tr td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.table tbody tr td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+/* === Heading === */
+h2, h3, h4 {
+    font-weight: bold;
+    color: #111;
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        padding: 1rem;
+    }
+
+    .main-content {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        margin-bottom: 1rem;
+    }
+
+    .table td {
+        padding-left: 50%;
+        position: relative;
+    }
+
+    .table td::before {
+        position: absolute;
+        left: 1rem;
+        top: 1rem;
+        width: 45%;
+        white-space: nowrap;
+        font-weight: bold;
+    }
+
+    .table td:nth-child(1)::before { content: "Transaction ID"; }
+    .table td:nth-child(2)::before { content: "Slot"; }
+    .table td:nth-child(3)::before { content: "Entry Time"; }
+    .table td:nth-child(4)::before { content: "Exit Time"; }
+    .table td:nth-child(5)::before { content: "Amount"; }
+}
+
+
+    </style>
+</head>
+<body>
+    {% extends 'base.html' %}
+    {% block content %}
+    <h2>Parking History</h2>
+    <table class="table">
+        <thead>
+            <tr><th>Transaction ID</th><th>Slot</th><th>Entry Time</th><th>Exit Time</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.TransactionID }}</td>
+                <td>{{ transaction.ParkingSlotID }}</td>
+                <td>{{ transaction.EntryTime }}</td>
+                <td>{{ transaction.ExitTime or 'Still Parked' }}</td>
+                <td>₱{{ transaction.PaymentAmount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endblock %}
+</body>
+</html>

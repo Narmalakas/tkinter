@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% extends 'base.html' %}
+    {% block content %}
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('../static/backgroundfinal.jpeg') ;
+    background-size: cover;
+    height: 100vh;
+    overflow: hidden;
+}
+/* Header Styling */
+.header {
+    background-color: #8B4513;
+    color: black;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 30px;
+    align-items: center;
+}
+.header a {
+    text-decoration: none;
+    color: black;
+    margin-left: 20px;
+    font-size: 0.9rem;
+}
+
+.header a:hover {
+    text-decoration: underline;
+}
+
+/* Logo Styling */
+.logo-container {
+    position: absolute;
+    top: 80px;
+    left: 50px;
+    font-size: 3rem;
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 3px 3px #f28c28;
+}
+
+.logo-container .fire {
+    color: orange;
+    font-size: 3.2rem;
+}
+
+/* Login Card Styling */
+.login-container {
+    position: absolute;
+    top: 175px;
+    right: 180px;
+    background: rgba(255, 165, 0, 0.42); /* translucent orange */
+    border-radius: 15px;
+    padding: 30px;
+    width: 450px;
+    height: 450px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #000;
+}
+
+/* Input Fields */
+.input-field {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn {
+    background-color: #8B4513;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #a0522d;
+}
+.logo {
+    top: 100px;
+    bottom: 70px;
+    width: 800px;
+    height: auto;
+
+}
+
+    </style>
+</head>
+<body>
+
+<img src="static/logo.png" class="logo">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 login-container">
+            <div class="lava-comb-text fiery-effect"></div>
+            <h2 class="mb-4">LOG IN</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                {{ form.hidden_tag() }}  <div class="form-group">
+                    {{ form.email.label(class="form-control-label") }}
+                    {{ form.email(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label(class="form-control-label") }}
+                    {{ form.password(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary btn-block") }}
+                </div>
+                <div class="register-link text-center">
+                    <p>Don't have an account? <a href="/register">Register here.</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+{% endblock %}
+</html>
+
