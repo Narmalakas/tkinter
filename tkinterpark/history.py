@@ -1,99 +1,67 @@
 import tkinter as tk
-from tkinter import ttk
 from database import Database
 
 class ParkingHistoryPage(tk.Frame):
     def __init__(self, master, user):
-        super().__init__(master)
+        master.geometry("850x500")
+        master.update_idletasks()
+
+        super().__init__(master, width=850, height=500)
+        self.pack_propagate(False)
+
         self.master = master
         self.user = user
         self.db = Database()
 
-        # Set the background color
-        self.config(bg='#F4B738')
+        self.configure(bg="#F4B738")
 
-        # Title Label
-        title_label = tk.Label(self, text="PARKING HISTORY", font=("Poppins", 24, "bold"), bg='#F4B738')
-        title_label.pack(pady=10)
+        # Title
+        tk.Label(self, text="PARKING HISTORY", font=("Poppins", 24, "bold"), bg="#F4B738").pack(pady=(20, 5))
 
-        # Navigation Bar
-        button_frame = tk.Frame(self, bg='#F4B738')
-        button_frame.pack(fill=tk.X, pady=30, padx=30)
+        # Navigation Buttons
+        button_frame = tk.Frame(self, bg="#F4B738")
+        button_frame.pack(fill=tk.X, pady=10, padx=30)
 
-        # Adjust the width and height of the buttons
-        button_width = 18
-        button_height = 2
-        button_font = ("Poppins", 10, "bold")
-        button_bg = "#FFFFFF"
-        button_bd = 3
-        button_relief = "raised"
+        button_settings = {
+            "width": 18,
+            "height": 2,
+            "font": ("Poppins", 10, "bold"),
+            "bg": "#FFFFFF",
+            "bd": 3,
+            "relief": "raised",
+        }
 
-        tk.Button(button_frame, text="HOME", command=lambda: self.master.show_home(self.user), width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="AVAILABLE SLOTS", command=master.show_available_slots, width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="MY VEHICLES", command=lambda: self.master.show_my_vehicles(), width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="REGISTER VEHICLE", command=lambda: self.master.show_register_vehicle(),
-                  width=button_width, height=button_height, font=button_font, bg=button_bg, bd=button_bd,
-                  relief=button_relief).pack(side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="LOGOUT", command=lambda: self.master.show_login(), width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.RIGHT, padx=10, pady=10)
+        tk.Button(button_frame, text="HOME", command=lambda: self.master.show_home(self.user), **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="AVAILABLE SLOTS", command=self.master.show_available_slots, **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="MY VEHICLES", command=self.master.show_my_vehicles, **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="REGISTER VEHICLE", command=self.master.show_register_vehicle, **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="LOGOUT", command=self.master.show_login, **button_settings).pack(side=tk.RIGHT, padx=10, pady=10)
 
-        # Parking History Table
-        self.tree = ttk.Treeview(self, columns=("TransactionID", "Slot", "Entry Time", "Exit Time", "Amount"), show="headings")
-        self.tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        # Table Frame
+        self.table_frame = tk.Frame(self, bg="#E5E4E2")
+        self.table_frame.pack(padx=20, pady=10, fill=tk.BOTH, expand=True)
 
-        self.tree.heading("TransactionID", text="Transaction ID")
-        self.tree.heading("Slot", text="Slot")
-        self.tree.heading("Entry Time", text="Entry Time")
-        self.tree.heading("Exit Time", text="Exit Time")
-        self.tree.heading("Amount", text="Amount")
+        self.load_history()
 
-        self.tree.column("TransactionID", width=100, anchor="center")
-        self.tree.column("Slot", width=50, anchor="center")
-        self.tree.column("Entry Time", width=150, anchor="center")
-        self.tree.column("Exit Time", width=150, anchor="center")
-        self.tree.column("Amount", width=80, anchor="center")
+    def load_history(self):
+        for widget in self.table_frame.winfo_children():
+            widget.destroy()
 
-        # Add a style to the Treeview
-        style = ttk.Style()
-        style.theme_use("default")
-
-        # Style for Treeview
-        style.configure("Treeview",
-                        background="#fefefe",
-                        foreground="#000000",
-                        rowheight=40,
-                        fieldbackground="#fefefe",
-                        bordercolor="#d0d0d0",
-                        borderwidth=1)
-
-        # Selected row color
-        style.map('Treeview',
-                  background=[('selected', '#e0e0e0')],
-                  foreground=[('selected', '#000000')])
-
-        # Heading style
-        style.configure("Treeview.Heading",
-                        background="#E5E4E2",
-                        foreground="#000000",
-                        font=("Poppins", 10, "bold"))
-
-        # Zebra striping (alternating row color)
-        self.tree.tag_configure('oddrow', background='#FFFAFA')
-        self.tree.tag_configure('evenrow', background='#EDE9DF')
-
-        self.show_history()
-
-
-    def show_history(self):
-        """Fetch and display parking history for the logged-in user."""
-        self.tree.delete(*self.tree.get_children())  # Clear existing entries
+        headers = ["Transaction ID", "Slot", "Entry Time", "Exit Time", "Amount"]
+        for col, header in enumerate(headers):
+            tk.Label(
+                self.table_frame,
+                text=header,
+                font=("Poppins", 11, "bold"),
+                bg="#DCDCDC",
+                fg="black",
+                padx=10,
+                pady=8,
+                borderwidth=1,
+                relief="solid",
+                anchor="center"
+            ).grid(row=0, column=col, sticky="nsew", ipadx=5, ipady=5)
+            self.table_frame.grid_columnconfigure(col, weight=1)
 
         query = """
             SELECT TransactionID, ParkingSlotID, EntryTime, ExitTime, PaymentAmount 
@@ -101,26 +69,29 @@ class ParkingHistoryPage(tk.Frame):
         """
         history = self.db.fetch_all(query, (self.user["UserID"],))
 
-        if history:
-            for index, record in enumerate(history):
-                exit_time = record["ExitTime"] if record["ExitTime"] else "Still Parked"
-
-                # Alternate row colors using tags
-                tag = 'evenrow' if index % 2 == 0 else 'oddrow'
-
-                # Safely handle potential missing fields
-                self.tree.insert(
-                    "", "end",
-                    values=(
-                        record.get("TransactionID", "N/A"),
-                        record.get("ParkingSlotID", "N/A"),
-                        record.get("EntryTime", "N/A"),
-                        exit_time,
-                        f"₱{record.get('PaymentAmount', 0):.2f}"
-                    ),
-                    tags=(tag,)
-                )
+        if not history:
+            tk.Label(self.table_frame, text="No parking history found.", font=("Poppins", 12), bg="white", pady=10).grid(
+                row=1, column=0, columnspan=5, sticky="nsew"
+            )
         else:
-            self.tree.insert("", "end", values=("No data", "", "", "", ""), tags=("evenrow",))
+            for row_idx, record in enumerate(history, start=1):
+                row_color = "#FFFFFF" if row_idx % 2 == 1 else "#F5F5F5"
+                exit_time = record["ExitTime"] if record["ExitTime"] else "Still Parked"
+                values = [
+                    record.get("TransactionID", "N/A"),
+                    record.get("ParkingSlotID", "N/A"),
+                    record.get("EntryTime", "N/A"),
+                    exit_time,
+                    f"₱{record.get('PaymentAmount', 0):.2f}"
+                ]
 
-
+                for col_idx, value in enumerate(values):
+                    tk.Label(
+                        self.table_frame,
+                        text=value,
+                        font=("Poppins", 10),
+                        bg=row_color,
+                        padx=10,
+                        pady=5,
+                        anchor="center"
+                    ).grid(row=row_idx, column=col_idx, sticky="nsew", ipadx=5, ipady=3)

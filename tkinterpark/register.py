@@ -1,50 +1,88 @@
 import tkinter as tk
 from tkinter import messagebox
-from database import Database  # Assuming you have a database.py file
-from login import LoginPage  # Assuming you have a login.py file
+from database import Database
+from login import LoginPage
 import bcrypt
 
 class RegisterPage(tk.Frame):
     def __init__(self, master):
-        super().__init__(master)
+        super().__init__(master, bg="#F4B738")
         self.db = Database()
-        self.configure(bg="#FFC107")
 
-        tk.Label(self, text="REGISTER", font=("Poppins", 40, "bold"), bg="#FFC107", fg="black").grid(row=0, column=0, columnspan=2, pady=20)
+        # Allow resizing
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-        tk.Label(self, text="First Name", bg="#FFC107", fg="black").grid(row=1, column=0, sticky="w", padx=100)
-        self.first_name_entry = tk.Entry(self, bg="white", highlightbackground="gray", highlightthickness=1, borderwidth=0)
-        self.first_name_entry.grid(row=1, column=1, pady=5, padx=100, sticky="ew")
+        # Canvas for rounded-style background
+        canvas = tk.Canvas(self, bg="#F4B738", highlightthickness=0)
+        canvas.grid(row=0, column=0, sticky="nsew")
 
-        tk.Label(self, text="Last Name", bg="#FFC107", fg="black").grid(row=2, column=0, sticky="w", padx=100)
-        self.last_name_entry = tk.Entry(self, bg="white", highlightbackground="gray", highlightthickness=1, borderwidth=0)
-        self.last_name_entry.grid(row=2, column=1, pady=5, padx=100, sticky="ew")
+        # Frame that holds content
+        self.content = tk.Frame(canvas, bg="#F4B738")
 
-        tk.Label(self, text="Email", bg="#FFC107", fg="black").grid(row=3, column=0, sticky="w", padx=100)
-        self.email_entry = tk.Entry(self, bg="white", highlightbackground="gray", highlightthickness=1, borderwidth=0)
-        self.email_entry.grid(row=3, column=1, pady=5, padx=100, sticky="ew")
+        # Function to resize and center content
+        def resize_content(event):
+            width = event.width
+            height = event.height
+            canvas.delete("all")
+            canvas.create_rectangle(50, 20, width - 50, height - 15, outline="", fill="#F4B738", width=0)
+            canvas.create_window(width // 2, height // 2, window=self.content, anchor="center")
 
-        tk.Label(self, text="Phone Number", bg="#FFC107", fg="black").grid(row=4, column=0, sticky="w", padx=100)
-        self.phone_entry = tk.Entry(self, bg="white", highlightbackground="gray", highlightthickness=1, borderwidth=0)
-        self.phone_entry.grid(row=4, column=1, pady=5, padx=100, sticky="ew")
+        canvas.bind("<Configure>", resize_content)
 
-        tk.Label(self, text="Password", bg="#FFC107", fg="black").grid(row=5, column=0, sticky="w", padx=100)
-        self.password_entry = tk.Entry(self, show="*", bg="white", highlightbackground="gray", highlightthickness=1, borderwidth=0)
-        self.password_entry.grid(row=5, column=1, pady=5, padx=100, sticky="ew")
+        # Title
+        tk.Label(self.content, text="REGISTER", font=("Poppins", 24, "bold"),
+                 bg="#F4B738", fg="black").grid(row=0, column=0, columnspan=2, pady=(2,2))
 
-        tk.Label(self, text="User Type:", bg="#FFC107", fg="black").grid(row=6, column=0, sticky="w", padx=100)
+        # Helpers
+        def create_label(row, text):
+            tk.Label(self.content, text=text + ":", font=("Poppins", 12),
+                     bg="#F4B738", anchor="w").grid(row=row, column=0, sticky="e",
+                                                    padx=(10, 5), pady=6)
+
+        def create_entry(row, show=None):
+            entry = tk.Entry(self.content, font=("Poppins", 11), bg="white",
+                             relief="flat", show=show)
+            entry.grid(row=row, column=1, padx=(0, 10), pady=6, ipady=3, sticky="ew")
+            return entry
+
+        self.content.grid_columnconfigure(1, weight=1)
+
+        # Fields
+        create_label(1, "First Name")
+        self.first_name_entry = create_entry(1)
+
+        create_label(2, "Last Name")
+        self.last_name_entry = create_entry(2)
+
+        create_label(3, "Email")
+        self.email_entry = create_entry(3)
+
+        create_label(4, "Phone Number")
+        self.phone_entry = create_entry(4)
+
+        create_label(5, "Password")
+        self.password_entry = create_entry(5, show="*")
+
+        create_label(6, "User Type")
         self.user_type_var = tk.StringVar(value="Student")
-        option_menu = tk.OptionMenu(self, self.user_type_var, "Student", "Faculty", "Visitor")
-        option_menu.config(bg="#E0E0E0", relief=tk.RAISED, borderwidth=1, highlightthickness=0)
-        option_menu.grid(row=6, column=1, pady=5, padx=100, sticky="ew")
+        dropdown = tk.OptionMenu(self.content, self.user_type_var, "Student", "Faculty", "Visitor")
+        dropdown.config(font=("Poppins", 11), bg="white", relief="flat",
+                        highlightthickness=1, bd=1)
+        dropdown.grid(row=6, column=1, sticky="ew", padx=(0, 10), pady=6)
 
-        register_button = tk.Button(self, text="Register", command=self.register, bg="#E0E0E0", relief=tk.RAISED, borderwidth=1)
-        register_button.grid(row=7, column=0, columnspan=2, pady=10, padx=50, sticky="ew")
+        # Register Button
+        register_btn = tk.Button(self.content, text="Register", command=self.register,
+                                 font=("Poppins", 11, "bold"), bg="#E0E0E0", relief="flat")
+        register_btn.grid(row=7, column=0, columnspan=2, pady=(20, 10),
+                          ipadx=10, ipady=5, sticky="ew", padx=40)
 
-        back_button = tk.Button(self, text="Back to Login", command=lambda: master.switch_page(LoginPage), bg="#E0E0E0", relief=tk.RAISED, borderwidth=1)
-        back_button.grid(row=8, column=0, columnspan=2, pady=5, padx=50, sticky="ew")
-
-        self.columnconfigure(1, weight=1)
+        # Back to Login Button
+        back_btn = tk.Button(self.content, text="Back to Login",
+                             command=lambda: master.switch_page(LoginPage),
+                             font=("Poppins", 11, "bold"), bg="#E0E0E0", relief="flat")
+        back_btn.grid(row=8, column=0, columnspan=2, pady=(5, 20),
+                      ipadx=10, ipady=5, sticky="ew", padx=40)
 
     def register(self):
         first_name = self.first_name_entry.get()
@@ -58,12 +96,10 @@ class RegisterPage(tk.Frame):
             messagebox.showerror("Error", "All fields are required!")
             return
 
-        # Email must contain an '@'
         if '@' not in email or email.startswith('@') or email.endswith('@'):
             messagebox.showerror("Invalid Email", "Please enter a valid email address")
             return
 
-        # Password must be at least 6 characters
         if len(password) < 6:
             messagebox.showerror("Weak Password", "Password must be at least 6 characters long")
             return
@@ -72,28 +108,10 @@ class RegisterPage(tk.Frame):
 
         try:
             self.db.execute(
-                "INSERT INTO Users (UserType, FirstName, LastName, Email, PhoneNumber, Password) VALUES (%s, %s, %s, %s, %s, %s)",
+                "INSERT INTO Users (UserType, FirstName, LastName, Email, PhoneNumber, Password) "
+                "VALUES (%s, %s, %s, %s, %s, %s)",
                 (user_type, first_name, last_name, email, phone, hashed_password))
             messagebox.showinfo("Success", "Registration successful! Please log in.")
             self.master.switch_page(LoginPage)
         except Exception as e:
             messagebox.showerror("Error", f"Registration failed: {e}")
-
-
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("Register/Login App")
-        self.geometry("600x400")
-        self.current_page = None
-        self.switch_page(LoginPage)
-
-    def switch_page(self, page_class):
-        if self.current_page:
-            self.current_page.destroy()
-        self.current_page = page_class(self)
-        self.current_page.pack(fill="both", expand=True)
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()

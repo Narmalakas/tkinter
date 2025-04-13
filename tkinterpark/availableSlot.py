@@ -1,8 +1,7 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
-from tkcalendar import DateEntry
+from tkinter import messagebox
 from database import Database
-from datetime import datetime, timedelta
+
 
 class AvailableSlots(tk.Frame):
     def __init__(self, master, user):
@@ -40,14 +39,15 @@ class AvailableSlots(tk.Frame):
                 relief="raised"
             ).grid(row=0, column=col, padx=10, pady=10)
 
-        button_frame.grid_columnconfigure(tuple(range(len(buttons))), weight=1)
+        for col in range(len(buttons)):
+            button_frame.grid_columnconfigure(col, weight=1)
 
-        self.setup_slot_display(self)
+        self.setup_slot_display()
         self.display_slots()
 
-    def setup_slot_display(self, parent):
-        self.canvas = tk.Canvas(parent, bg="#e0e0e0", highlightthickness=0)
-        self.scrollbar = tk.Scrollbar(parent, orient="vertical", command=self.canvas.yview)
+    def setup_slot_display(self):
+        self.canvas = tk.Canvas(self, bg="#e0e0e0", highlightthickness=0)
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         self.canvas.pack(side="left", fill="both", expand=True)
@@ -65,7 +65,6 @@ class AvailableSlots(tk.Frame):
     def _resize_canvas(self, event):
         canvas_width = event.width
         self.canvas.itemconfig(self.canvas_window, width=canvas_width)
-        self.slot_display.update_idletasks()
 
     def display_slots(self):
         for widget in self.slot_display.winfo_children():
@@ -73,32 +72,22 @@ class AvailableSlots(tk.Frame):
 
         slots = self.db.fetch_all("SELECT ParkingSlotID, SlotNumber, IsOccupied FROM ParkingSlots")
 
-        # Header frame
-        header_frame = tk.Frame(self.slot_display, bg="#F4B738", padx=20)
-        header_frame.grid(row=0, column=0, sticky="nsew", pady=(10, 5), padx=200)
-
+        # Header
+        header_frame = tk.Frame(self.slot_display, bg="#F4B738")
+        header_frame.grid(row=0, column=0, sticky="ew", pady=(10, 5), padx=10)
         for col in range(3):
             header_frame.grid_columnconfigure(col, weight=1, uniform="col")
 
-        tk.Label(header_frame, text="Slot No.", font=("Poppins", 11, "bold"),
-                 bg="#F4B738", fg="black", anchor="center").grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
+        tk.Label(header_frame, text="Slot No.", font=("Poppins", 11, "bold"), bg="#F4B738").grid(row=0, column=0, padx=5, pady=10)
+        tk.Label(header_frame, text="Status", font=("Poppins", 11, "bold"), bg="#F4B738").grid(row=0, column=1, padx=5, pady=10)
+        tk.Label(header_frame, text="Action", font=("Poppins", 11, "bold"), bg="#F4B738").grid(row=0, column=2, padx=5, pady=10)
 
-        tk.Label(header_frame, text="Status", font=("Poppins", 11, "bold"),
-                 bg="#F4B738", fg="black", anchor="center").grid(row=0, column=1, padx=5, pady=10, sticky="nsew")
+        self.slot_display.grid_columnconfigure(0, weight=1)
 
-        tk.Label(header_frame, text="Action", font=("Poppins", 11, "bold"),
-                 bg="#F4B738", fg="black", anchor="center").grid(row=0, column=2, padx=5, pady=10, sticky="nsew")
-
-        # Main grid config
-        self.slot_display.grid_columnconfigure(0, weight=1, minsize=0)
-        self.slot_display.grid_columnconfigure(1, weight=0, minsize=0)
-        self.slot_display.grid_columnconfigure(2, weight=1, minsize=0)
-
-        # Slot rows
         for idx, slot in enumerate(slots, start=1):
             bg_color = "#f9f9f9" if idx % 2 == 0 else "#ffffff"
-            row_frame = tk.Frame(self.slot_display, bg=bg_color, padx=200)
-            row_frame.grid(row=idx, column=0, sticky="nsew", padx=200, pady=3)
+            row_frame = tk.Frame(self.slot_display, bg=bg_color)
+            row_frame.grid(row=idx, column=0, sticky="ew", padx=10, pady=3)
 
             for col in range(3):
                 row_frame.grid_columnconfigure(col, weight=1, uniform="col")
@@ -107,31 +96,28 @@ class AvailableSlots(tk.Frame):
             status_color = "red" if slot["IsOccupied"] else "green"
 
             tk.Label(row_frame, text=f"Slot {slot['SlotNumber']}", font=("Poppins", 11, "bold"),
-                     fg="black", bg=bg_color, anchor="center").grid(row=0, column=0, padx=5, pady=10, sticky="nsew")
+                     bg=bg_color).grid(row=0, column=0, padx=5, pady=10)
 
             tk.Label(row_frame, text=status_text, font=("Poppins", 10, "bold"),
-                     fg=status_color, bg=bg_color, anchor="center").grid(row=0, column=1, padx=5, pady=10,
-                                                                         sticky="nsew")
+                     fg=status_color, bg=bg_color).grid(row=0, column=1, padx=5, pady=10)
 
             action_btn_kwargs = {
                 "font": ("Poppins", 10, "bold"),
                 "relief": "groove",
                 "bg": "white",
                 "fg": "black",
-                "padx": 30,
-                "pady": 2,
-                "width": 20
+                "padx": 10,
+                "pady": 2
             }
 
             action_button = None
             if slot["IsOccupied"]:
-                parked_user = self.db.fetch_one(""" 
-                    SELECT UserID 
-                    FROM ParkingTransactions 
+                parked_user = self.db.fetch_one("""
+                    SELECT UserID FROM ParkingTransactions 
                     WHERE ParkingSlotID = %s AND ExitTime IS NULL
                 """, (slot["ParkingSlotID"],))
 
-                if parked_user and parked_user["UserID"] == self.user["UserID"]:
+                if parked_user and parked_user.get("UserID") == self.user.get("UserID"):
                     action_button = tk.Button(row_frame, text="Park Out",
                                               command=lambda s=slot["ParkingSlotID"]: self.park_out(s),
                                               **action_btn_kwargs)
@@ -141,10 +127,10 @@ class AvailableSlots(tk.Frame):
                                           **action_btn_kwargs)
 
             if action_button:
-                action_button.grid(row=0, column=2, padx=5, pady=5, sticky="n")
+                action_button.grid(row=0, column=2, padx=5, pady=5)
 
-        # Update scroll region
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
 
     def park_vehicle(self, slot_id):
         """Popup window for parking transaction - Yellow Themed Modern UI"""
