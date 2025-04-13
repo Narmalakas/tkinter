@@ -14,19 +14,19 @@ class ParkingHistoryPage(tk.Frame):
 
         # Title Label
         title_label = tk.Label(self, text="PARKING HISTORY", font=("Poppins", 24, "bold"), bg='#F4B738')
-        title_label.pack(pady=50)
+        title_label.pack(pady=10)
 
         # Navigation Bar
         button_frame = tk.Frame(self, bg='#F4B738')
         button_frame.pack(fill=tk.X, pady=30, padx=30)
 
         # Adjust the width and height of the buttons
-        button_width = 18  # Set the desired width
-        button_height = 2  # Set the desired height
-        button_font = ("Poppins", 10, "bold")  # Set the font size and make it bold
-        button_bg = "#FFFFFF"  # Set the button background color to white
-        button_bd = 3  # Set the border width
-        button_relief = "raised"  # Set the relief style (options: flat, raised, sunken, groove, ridge)
+        button_width = 18
+        button_height = 2
+        button_font = ("Poppins", 10, "bold")
+        button_bg = "#FFFFFF"
+        button_bd = 3
+        button_relief = "raised"
 
         tk.Button(button_frame, text="HOME", command=lambda: self.master.show_home(self.user), width=button_width,
                   height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(

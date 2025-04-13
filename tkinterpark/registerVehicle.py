@@ -20,14 +20,10 @@ class RegisterVehiclePage(tk.Frame):
 
         button_style = {"width": 18, "height": 2, "bg": "white", "fg": "black", "font": ("Arial", 10, "bold"),
                         "relief": "raised", "bd": 3}
-        tk.Button(nav_frame, text="HOME", command=lambda: master.show_home(master.user), **button_style).pack(
-            side=tk.LEFT, padx=5)
-        tk.Button(nav_frame, text="AVAILABLE SLOTS", command=master.show_available_slots, **button_style).pack(
-            side=tk.LEFT, padx=5)
-        tk.Button(nav_frame, text="MY VEHICLES", command=master.show_my_vehicles, **button_style).pack(side=tk.LEFT,
-                                                                                                       padx=5)
-        tk.Button(nav_frame, text="PARKING HISTORY", command=master.show_parking_history, **button_style).pack(side=tk.LEFT,
-                                                                                                       padx=5)
+        tk.Button(nav_frame, text="HOME", command=lambda: master.show_home(master.user), **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(nav_frame, text="AVAILABLE SLOTS", command=master.show_available_slots, **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(nav_frame, text="MY VEHICLES", command=master.show_my_vehicles, **button_style).pack(side=tk.LEFT,padx=5)
+        tk.Button(nav_frame, text="PARKING HISTORY", command=master.show_parking_history, **button_style).pack(side=tk.LEFT,padx=5)
         tk.Button(nav_frame, text="LOGOUT", command=master.show_login, **button_style).pack(side=tk.LEFT, padx=5)
 
         # Form fields

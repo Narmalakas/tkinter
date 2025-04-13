@@ -21,7 +21,7 @@ class App(tk.Tk):
         self.switch_page(LoginPage)
 
     def show_home(self, user):
-        self.user = user  # Store user for later use
+        self.user = user
         self.switch_page(HomePage, user)
 
     def show_available_slots(self):

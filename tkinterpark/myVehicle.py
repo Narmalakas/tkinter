@@ -3,78 +3,84 @@ from database import Database
 
 class MyVehiclesPage(tk.Frame):
     def __init__(self, master, user):
-        super().__init__(master)
+        master.geometry("850x500")
+        master.update_idletasks()
+
+        super().__init__(master, width=850, height=500)
+        self.pack_propagate(False)
+
         self.master = master
         self.user = user
         self.db = Database()
 
-        self.configure(bg="#F4B738")  # Orange background
+        self.configure(bg="#F4B738")
 
-        # Navigation Buttons (Top)
-        button_frame = tk.Frame(self, bg='#F4B738')
-        button_frame.pack(fill=tk.X, pady=30, padx=30)
+        # Title
+        tk.Label(self, text="YOUR VEHICLE", font=("Poppins", 24, "bold"), bg="#F4B738").pack(pady=(20, 5))
 
-        button_width = 18
-        button_height = 2
-        button_font = ("Poppins", 10, "bold")
-        button_bg = "#FFFFFF"
-        button_bd = 3
-        button_relief = "raised"
+        # Navigation Buttons
+        button_frame = tk.Frame(self, bg="#F4B738")
+        button_frame.pack(fill=tk.X, pady=10, padx=30)
 
-        tk.Button(button_frame, text="HOME", command=lambda: self.master.show_home(self.user), width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="AVAILABLE SLOTS", command=master.show_available_slots, width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="REGISTER VEHICLE", command=lambda: self.master.show_register_vehicle(), width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="PARKING HISTORY", command=lambda: self.master.show_parking_history(),
-                  width=button_width, height=button_height, font=button_font, bg=button_bg, bd=button_bd,
-                  relief=button_relief).pack(side=tk.LEFT, padx=10, pady=10)
-        tk.Button(button_frame, text="LOGOUT", command=lambda: self.master.show_login(), width=button_width,
-                  height=button_height, font=button_font, bg=button_bg, bd=button_bd, relief=button_relief).pack(
-            side=tk.RIGHT, padx=10, pady=10)
+        button_settings = {
+            "width": 18,
+            "height": 2,
+            "font": ("Poppins", 10, "bold"),
+            "bg": "#FFFFFF",
+            "bd": 3,
+            "relief": "raised",
+        }
 
-        # Title Label
-        tk.Label(self, text="YOUR VEHICLE", font=("Poppins", 24, "bold"), bg="#F4B738").pack(pady=25)
+        tk.Button(button_frame, text="HOME", command=lambda: self.master.show_home(self.user), **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="AVAILABLE SLOTS", command=self.master.show_available_slots, **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="REGISTER VEHICLE", command=self.master.show_register_vehicle, **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="PARKING HISTORY", command=self.master.show_parking_history, **button_settings).pack(side=tk.LEFT, padx=10, pady=10)
+        tk.Button(button_frame, text="LOGOUT", command=self.master.show_login, **button_settings).pack(side=tk.RIGHT, padx=10, pady=10)
 
-        # Unified Table Section
-        table_frame = tk.Frame(self, bg="#E5E4E2")
-        table_frame.pack(pady=10, fill=tk.BOTH, expand=True, padx=20)
+        # Combined Table Frame
+        self.table_frame = tk.Frame(self, bg="#E5E4E2")
+        self.table_frame.pack(padx=20, pady=10, fill=tk.BOTH, expand=True)
 
-        headers = ["Type", "License Plate", "Make", "Model", "Color"]
-        header_frame = tk.Frame(table_frame, bg="#E5E4E2")
-        header_frame.pack(fill=tk.X)
-
-        for col, text in enumerate(headers):
-            tk.Label(header_frame, text=text, font=("Poppins", 11), padx=10, pady=8,
-                     bg="#E5E4E2", fg="black", borderwidth=1, relief="solid", anchor="center").grid(
-                row=0, column=col, sticky="nsew")
-            header_frame.grid_columnconfigure(col, weight=1)
-
-        # Vehicle List Frame
-        self.vehicles_frame = tk.Frame(table_frame, bg="white", bd=1, relief="solid")
-        self.vehicles_frame.pack(fill=tk.BOTH, expand=True)
-
+        # Load vehicles and build the table
         self.load_vehicles()
 
     def load_vehicles(self):
-        # Clear previous data
-        for widget in self.vehicles_frame.winfo_children():
+        for widget in self.table_frame.winfo_children():
             widget.destroy()
+
+        headers = ["Type", "License Plate", "Make", "Model", "Color"]
+        for col, header in enumerate(headers):
+            tk.Label(
+                self.table_frame,
+                text=header,
+                font=("Poppins", 11, "bold"),
+                bg="#DCDCDC",
+                fg="black",
+                padx=10,
+                pady=8,
+                borderwidth=1,
+                relief="solid",
+                anchor="center"
+            ).grid(row=0, column=col, sticky="nsew", ipadx=5, ipady=5)
+            self.table_frame.grid_columnconfigure(col, weight=1)
 
         query = "SELECT VehicleType, LicensePlate, Make, Model, Color FROM Vehicles WHERE UserID = %s"
         vehicles = self.db.fetch_all(query, (self.user["UserID"],))
 
         if not vehicles:
-            tk.Label(self.vehicles_frame, text="No vehicles found.", font=("Poppins", 12), bg="white", pady=10).pack()
+            tk.Label(self.table_frame, text="No vehicles found.", font=("Poppins", 12), bg="white", pady=10).grid(
+                row=1, column=0, columnspan=5, sticky="nsew"
+            )
         else:
-            for row_idx, vehicle in enumerate(vehicles):
-                row_color = "#FFFFFF" if row_idx % 2 == 0 else "#F5F5F5"  # Alternating row colors
+            for row_idx, vehicle in enumerate(vehicles, start=1):
+                row_color = "#FFFFFF" if row_idx % 2 == 1 else "#F5F5F5"
                 for col_idx, key in enumerate(["VehicleType", "LicensePlate", "Make", "Model", "Color"]):
-                    tk.Label(self.vehicles_frame, text=vehicle[key], padx=10, pady=5,
-                             bg=row_color, font=("Poppins", 10), anchor="center").grid(
-                        row=row_idx, column=col_idx, sticky="nsew")
-                    self.vehicles_frame.grid_columnconfigure(col_idx, weight=1)
+                    tk.Label(
+                        self.table_frame,
+                        text=vehicle[key],
+                        font=("Poppins", 10),
+                        bg=row_color,
+                        padx=10,
+                        pady=5,
+                        anchor="center"
+                    ).grid(row=row_idx, column=col_idx, sticky="nsew", ipadx=5, ipady=3)

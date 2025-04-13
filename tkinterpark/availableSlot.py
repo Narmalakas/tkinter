@@ -11,7 +11,7 @@ class AvailableSlots(tk.Frame):
         self.user = user
         self.db = Database()
 
-        self.configure(bg="#f4b942")  # Set yellow background
+        self.configure(bg="#f4b942")
 
         tk.Label(self, text="AVAILABLE PARKING SLOTS", font=("Poppins", 24, "bold"), bg="#F4B738").pack(pady=25)
 
@@ -19,7 +19,6 @@ class AvailableSlots(tk.Frame):
         button_frame = tk.Frame(self, bg='#f4b942')
         button_frame.pack(pady=10)
 
-        # Create a grid with 5 centered buttons
         buttons = [
             ("HOME", self.master.show_home),
             ("MY VEHICLE", self.master.show_my_vehicles),
@@ -43,7 +42,6 @@ class AvailableSlots(tk.Frame):
 
         button_frame.grid_columnconfigure(tuple(range(len(buttons))), weight=1)
 
-        # ✅ FIXED: Use scrollable display
         self.setup_slot_display(self)
         self.display_slots()
 
@@ -62,14 +60,12 @@ class AvailableSlots(tk.Frame):
         self.canvas.bind("<Configure>", self._resize_canvas)
 
     def _on_frame_configure(self, event):
-        # Update scroll region when the frame is resized or updated
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def _resize_canvas(self, event):
-        # Dynamically adjust the width of the canvas based on its parent container's width
         canvas_width = event.width
         self.canvas.itemconfig(self.canvas_window, width=canvas_width)
-        self.slot_display.update_idletasks()  # Ensure the width is updated correctly
+        self.slot_display.update_idletasks()
 
     def display_slots(self):
         for widget in self.slot_display.winfo_children():
@@ -78,7 +74,7 @@ class AvailableSlots(tk.Frame):
         slots = self.db.fetch_all("SELECT ParkingSlotID, SlotNumber, IsOccupied FROM ParkingSlots")
 
         # Header frame
-        header_frame = tk.Frame(self.slot_display, bg="#F4B738", padx=200)
+        header_frame = tk.Frame(self.slot_display, bg="#F4B738", padx=20)
         header_frame.grid(row=0, column=0, sticky="nsew", pady=(10, 5), padx=200)
 
         for col in range(3):
@@ -161,8 +157,7 @@ class AvailableSlots(tk.Frame):
         main_frame = tk.Frame(popup, bg="#F4B738")
         main_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
-        header = tk.Label(main_frame, text=f"Park in Slot {slot_id}", font=("Arial", 16, "bold"), bg="#fff8d6",
-                          fg="#333")
+        header = tk.Label(main_frame, text=f"PARK IN SLOT {slot_id}", font=("Arial", 16, "bold"), bg="#F4B738",fg="#333")
         header.pack(pady=(0, 10))
 
         vehicles = self.db.fetch_all(""" 
@@ -173,12 +168,12 @@ class AvailableSlots(tk.Frame):
         """, (self.user["UserID"],))
 
         if not vehicles:
-            tk.Label(main_frame, text="No available vehicles to park!", fg="red", bg="#fff8d6",
+            tk.Label(main_frame, text="No available vehicles to park!", fg="red", bg="#F4B738",
                      font=("Arial", 12)).pack()
             return
 
         # Vehicle selection
-        tk.Label(main_frame, text="Select Vehicle:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w")
+        tk.Label(main_frame, text="Select Vehicle:", bg="#F4B738", font=("Arial", 11, "bold")).pack(anchor="w")
         self.selected_vehicle = tk.StringVar()
         vehicle_options = {f"{v['Make']} {v['Model']} ({v['LicensePlate']})": v["VehicleID"] for v in vehicles}
         vehicle_dropdown = ttk.Combobox(main_frame, textvariable=self.selected_vehicle,
@@ -186,7 +181,7 @@ class AvailableSlots(tk.Frame):
         vehicle_dropdown.pack(fill="x", pady=5)
 
         # Entry time
-        tk.Label(main_frame, text="Entry Date & Time:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w", pady=(10, 0))
+        tk.Label(main_frame, text="Entry Date & Time:", bg="#F4B738", font=("Arial", 11, "bold")).pack(anchor="w", pady=(10, 0))
         entry_frame = tk.Frame(main_frame, bg="#F4B738")
         entry_frame.pack(fill="x")
         self.entry_date = DateEntry(entry_frame, date_pattern="yyyy-mm-dd")
@@ -195,8 +190,8 @@ class AvailableSlots(tk.Frame):
         self.entry_time.pack(side="right", expand=True, fill="x", padx=(5, 0))
 
         # Exit time
-        tk.Label(main_frame, text="Exit Date & Time:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w", pady=(10, 0))
-        exit_frame = tk.Frame(main_frame, bg="#fff8d6")
+        tk.Label(main_frame, text="Exit Date & Time:", bg="#F4B738", font=("Arial", 11, "bold")).pack(anchor="w", pady=(10, 0))
+        exit_frame = tk.Frame(main_frame, bg="#F4B738")
         exit_frame.pack(fill="x")
         self.exit_date = DateEntry(exit_frame, date_pattern="yyyy-mm-dd")
         self.exit_date.pack(side="left", expand=True, fill="x", padx=(0, 5))
@@ -204,25 +199,22 @@ class AvailableSlots(tk.Frame):
         self.exit_time.pack(side="right", expand=True, fill="x", padx=(5, 0))
 
         # Discount
-        tk.Label(main_frame, text="Select Discount:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w", pady=(10, 0))
+        tk.Label(main_frame, text="Select Discount:", bg="#F4B738", font=("Arial", 11, "bold")).pack(anchor="w", pady=(10, 0))
         self.discount_var = tk.StringVar(value="None")
         discount_options = ["None", "Student", "Faculty", "PWD", "Visitor"]
-        discount_dropdown = ttk.Combobox(main_frame, textvariable=self.discount_var, values=discount_options,
-                                         state="readonly")
+        discount_dropdown = ttk.Combobox(main_frame, textvariable=self.discount_var, values=discount_options,state="readonly")
         discount_dropdown.pack(fill="x", pady=5)
         discount_dropdown.bind("<<ComboboxSelected>>", lambda e: self.calculate_payment())
 
         # Payment label
-        self.payment_label = tk.Label(main_frame, text="Payment: ₱0", font=("Arial", 12, "bold"), bg="#F4B738",
-                                      fg="#444")
+        self.payment_label = tk.Label(main_frame, text="PAYMENT: ₱0", font=("Arial", 12, "bold"), bg="#F4B738", fg="#444")
         self.payment_label.pack(pady=10)
 
         # Payment method
-        tk.Label(main_frame, text="Payment Method:", bg="#F4B738", font=("Arial", 11)).pack(anchor="w")
+        tk.Label(main_frame, text="Payment Method:", bg="#F4B738", font=("Arial", 11,"bold")).pack(anchor="w")
         self.payment_method = tk.StringVar(value="Cash")
         payment_methods = ["Cash", "Online Payment", "Credit Card"]
-        payment_dropdown = ttk.Combobox(main_frame, textvariable=self.payment_method, values=payment_methods,
-                                        state="readonly")
+        payment_dropdown = ttk.Combobox(main_frame, textvariable=self.payment_method, values=payment_methods,state="readonly")
         payment_dropdown.pack(fill="x", pady=5)
 
         # Bindings for calculation
@@ -232,9 +224,14 @@ class AvailableSlots(tk.Frame):
         self.exit_time.bind("<<ComboboxSelected>>", lambda e: self.calculate_payment())
 
         # Confirm button
-        confirm_btn = tk.Button(main_frame, text="Confirm Parking", font=("Arial", 11, "bold"), bg="#F4B738",
-                                fg="black", bd=0,
-                                relief="raised", command=lambda: self.confirm_parking(slot_id, vehicle_options, popup))
+        confirm_btn = tk.Button(main_frame,
+                                text="CONFIRM PARKING",
+                                font=("Poppins", 12, "bold"),
+                                bg="#F4B738",
+                                fg="black",
+                                bd=2,  # Set border width
+                                relief="solid",  # Set relief style (solid, raised, sunken, etc.)
+                                command=lambda: self.confirm_parking(slot_id, vehicle_options, popup))
         confirm_btn.pack(pady=15, ipadx=10, ipady=5)
 
     def calculate_payment(self):
