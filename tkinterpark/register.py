@@ -58,6 +58,16 @@ class RegisterPage(tk.Frame):
             messagebox.showerror("Error", "All fields are required!")
             return
 
+        # Email must contain an '@'
+        if '@' not in email or email.startswith('@') or email.endswith('@'):
+            messagebox.showerror("Invalid Email", "Please enter a valid email address")
+            return
+
+        # Password must be at least 6 characters
+        if len(password) < 6:
+            messagebox.showerror("Weak Password", "Password must be at least 6 characters long")
+            return
+
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
         try:
@@ -68,7 +78,6 @@ class RegisterPage(tk.Frame):
             self.master.switch_page(LoginPage)
         except Exception as e:
             messagebox.showerror("Error", f"Registration failed: {e}")
-
 
 
 class App(tk.Tk):
