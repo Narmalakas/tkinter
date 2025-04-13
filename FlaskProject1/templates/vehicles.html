@@ -51,6 +51,24 @@
     border-radius: 20px;
     padding: 0.5rem 1rem;
 }
+.yellow-button {
+    background-color: #f4b000;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease-in-out;
+}
+
+.yellow-button:hover {
+    background-color: #d39e00;
+    color: white;
+    text-decoration: none;
+}
+
     </style>
 </head>
     {% extends "base.html" %}
@@ -79,6 +97,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        <a href="{{ url_for('register_vehicle') }}" class="btn btn-primary">Add New Vehicle</a>
+        <a href="{{ url_for('register_vehicle') }}" class="yellow-button">Add New Vehicle</a>
     </div>
     {% endblock %}

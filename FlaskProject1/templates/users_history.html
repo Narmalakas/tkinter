@@ -5,9 +5,15 @@
     <h2 class="mb-3">Users' Parking History</h2>
 
     <form method="GET" action="{{ url_for('users_history') }}" class="mb-4">
-        <label for="date_filter" class="form-label">Filter by Date:</label>
-        <input type="date" id="date_filter" name="date" class="form-control" value="{{ request.args.get('date', '') }}">
-        <button type="submit" class="btn btn-primary mt-2">Filter</button>
+        <div class="d-flex align-items-end gap-2">
+            <div>
+                <label for="date_filter" class="form-label">Filter by Date:</label>
+                <input type="date" id="date_filter" name="date" class="form-control" value="{{ request.args.get('date', '') }}">
+            </div>
+            <div class="mt-auto">
+                <button type="submit" class="btn" style="background-color: #f4b000; color: black;">Filter</button>
+            </div>
+        </div>
     </form>
 
     {% if history %}
@@ -35,8 +41,8 @@
                 <td>{{ transaction.make }}</td>
                 <td>{{ transaction.model }}</td>
                 <td>{{ transaction.entry_time }}</td>
-                <td>{{ transaction.exit_time }}</td>
-                <td>{{ transaction.paymentAmount }}</td>
+                <td>{{ transaction.exit_time if transaction.exit_time else 'Still Parked' }}</td>
+                <td>₱{{ transaction.paymentAmount }}</td>
             </tr>
             {% endfor %}
         </tbody>
