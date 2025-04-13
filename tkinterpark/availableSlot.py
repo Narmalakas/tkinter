@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+from tkcalendar import DateEntry
 from database import Database
-
+from datetime import datetime, timedelta
 
 class AvailableSlots(tk.Frame):
     def __init__(self, master, user):
@@ -14,33 +15,25 @@ class AvailableSlots(tk.Frame):
 
         tk.Label(self, text="AVAILABLE PARKING SLOTS", font=("Poppins", 24, "bold"), bg="#F4B738").pack(pady=25)
 
-        # Navigation Buttons
-        button_frame = tk.Frame(self, bg='#f4b942')
-        button_frame.pack(pady=10)
+        # --- Navigation Buttons ---
+        nav_frame = tk.Frame(self, bg='#f4b942')
+        nav_frame.pack(pady=10)
 
-        buttons = [
-            ("HOME", self.master.show_home),
-            ("MY VEHICLE", self.master.show_my_vehicles),
-            ("REGISTER VEHICLE", self.master.show_register_vehicle),
-            ("PARKING HISTORY", self.master.show_parking_history),
-            ("LOG OUT", self.master.show_login)
-        ]
+        button_style = {
+            "width": 18,
+            "height": 2,
+            "bg": "white",
+            "fg": "black",
+            "font": ("Arial", 10, "bold"),
+            "relief": "raised",
+            "bd": 3
+        }
 
-        for col, (text, command) in enumerate(buttons):
-            tk.Button(
-                button_frame,
-                text=text,
-                command=command,
-                width=18,
-                height=2,
-                font=("Poppins", 10, "bold"),
-                bg="#FFFFFF",
-                bd=3,
-                relief="raised"
-            ).grid(row=0, column=col, padx=10, pady=10)
-
-        for col in range(len(buttons)):
-            button_frame.grid_columnconfigure(col, weight=1)
+        tk.Button(nav_frame, text="HOME", command=lambda: master.show_home(self.user), **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(nav_frame, text="AVAILABLE SLOTS", command=master.show_available_slots, **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(nav_frame, text="MY VEHICLES", command=master.show_my_vehicles, **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(nav_frame, text="PARKING HISTORY", command=master.show_parking_history, **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(nav_frame, text="LOGOUT", command=master.show_login, **button_style).pack(side=tk.LEFT, padx=5)
 
         self.setup_slot_display()
         self.display_slots()
@@ -106,8 +99,9 @@ class AvailableSlots(tk.Frame):
                 "relief": "groove",
                 "bg": "white",
                 "fg": "black",
-                "padx": 10,
-                "pady": 2
+                "padx": 12,
+                "pady": 4,
+                "width": 15  # Wider button
             }
 
             action_button = None
@@ -129,6 +123,7 @@ class AvailableSlots(tk.Frame):
             if action_button:
                 action_button.grid(row=0, column=2, padx=5, pady=5)
 
+        self.slot_display.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
 
